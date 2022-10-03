@@ -137,13 +137,30 @@ df1 = pd.read_csv("results_pct_20201103.txt", sep="\t")
 
 Biden =df1.loc[(df1['Contest Name']  =='US PRESIDENT' ) & (df1['Choice Party']  =='DEM' )]
 Trump =df1.loc[(df1['Contest Name']  =='US PRESIDENT' ) & (df1['Choice Party']  =='REP' )]
-print(Biden)
 
+Cal =df1.loc[(df1['Contest Name']  =='US SENATE' ) & (df1['Choice Party']  =='DEM' )]
+Tillis =df1.loc[(df1['Contest Name']  =='US SENATE') & (df1['Choice Party']  =='REP' )]
+
+Cooper =df1.loc[(df1['Contest Name']  =='NC GOVERNOR' ) & (df1['Choice Party']  =='DEM' )]
+Forest =df1.loc[(df1['Contest Name']  =='NC GOVERNOR') & (df1['Choice Party']  =='REP' )]
 
 Biden = Biden.groupby(Biden['County'])[['Election Day','One Stop','Absentee by Mail','Provisional','Total Votes']].sum().reset_index()
 Trump =Trump.groupby(Trump['County'])[['Election Day','One Stop','Absentee by Mail','Provisional','Total Votes']].sum().reset_index()
 
+Cal = Cal.groupby(Cal['County'])[['Election Day','One Stop','Absentee by Mail','Provisional','Total Votes']].sum().reset_index()
+Tillis =Tillis.groupby(Tillis['County'])[['Election Day','One Stop','Absentee by Mail','Provisional','Total Votes']].sum().reset_index()
+
+Cooper = Cooper.groupby(Cooper['County'])[['Election Day','One Stop','Absentee by Mail','Provisional','Total Votes']].sum().reset_index()
+Forest =Forest.groupby(Forest['County'])[['Election Day','One Stop','Absentee by Mail','Provisional','Total Votes']].sum().reset_index()
+
 President =assign_race(Biden,Trump,"Biden","Trump")
 write_to_excel(President,"President")
-print(President)
+
+Senate =assign_race(Cal,Tillis,"Cal","Tillis")
+calculate_shift(Senate,President)
+write_to_excel(Senate,"Senate")
+
+Governor =assign_race(Cooper,Forest,"Cooper","Forest")
+calculate_shift(Governor,President)
+write_to_excel(Governor,"Governor")
 
