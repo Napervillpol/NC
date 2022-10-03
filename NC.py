@@ -6,6 +6,22 @@ from lxml import etree
 from zipfile import ZipFile
 from urllib.request import urlopen
 
+def write_to_excel(race,race_name):
+    writer = pd.ExcelWriter('NC_'+race_name+ '.xlsx', engine='xlsxwriter')
+
+    race.mail.to_excel(writer,sheet_name="Mail",index=False)
+    race.eday.to_excel(writer,sheet_name="Election Day",index=False)
+    race.advance.to_excel(writer,sheet_name="One Stop",index=False)
+    race.prov.to_excel(writer,sheet_name="Provisonal",index=False)
+    race.total.to_excel(writer,sheet_name="Total",index=False)
+
+    writer.save()
+
+def safediv(x,y):
+    try:
+        return x/y
+    except ZeroDivisionError:
+        return 0
 class race:
     mail=[]
     eday=[]
@@ -25,7 +41,7 @@ def assign_race(Dem,Rep,Dem_name,Rep_name):
     Dem_mail = Dem[['County','Absentee by Mail']]
     Dem_mail.columns=['County',Dem_name]
 
-    Rep_mail = Rep[['Counties','Absentee by Mail']]
+    Rep_mail = Rep[['County','Absentee by Mail']]
     Rep_mail.columns=['County',Rep_name]
     mail = Dem_mail.merge(Rep_mail, on='County')
     calculations(mail,Dem_name,Rep_name)
@@ -58,10 +74,10 @@ def assign_race(Dem,Rep,Dem_name,Rep_name):
     calculations(prov,Dem_name,Rep_name)
 
      #Total
-    Dem_total= Dem[['County','Total']]
+    Dem_total= Dem[['County','Total Votes']]
     Dem_total.columns=['County',Dem_name]
 
-    Rep_total = Rep[['County','Total']]
+    Rep_total = Rep[['County','Total Votes']]
     Rep_total.columns=['County',Rep_name]
     total = Dem_total.merge(Rep_total, on='County')
     calculations(total,Dem_name,Rep_name)
@@ -121,9 +137,13 @@ df1 = pd.read_csv("results_pct_20201103.txt", sep="\t")
 
 Biden =df1.loc[(df1['Contest Name']  =='US PRESIDENT' ) & (df1['Choice Party']  =='DEM' )]
 Trump =df1.loc[(df1['Contest Name']  =='US PRESIDENT' ) & (df1['Choice Party']  =='REP' )]
+print(Biden)
 
-Biden = Biden.groupby(Biden['County'])[['Election Day','One Stop','Absentee by Mail','Provisional']].sum()
-Trump =Trump.groupby(Trump['County'])[['Election Day','One Stop','Absentee by Mail','Provisional']].sum()
 
-print(Trump)
+Biden = Biden.groupby(Biden['County'])[['Election Day','One Stop','Absentee by Mail','Provisional','Total Votes']].sum().reset_index()
+Trump =Trump.groupby(Trump['County'])[['Election Day','One Stop','Absentee by Mail','Provisional','Total Votes']].sum().reset_index()
+
+President =assign_race(Biden,Trump,"Biden","Trump")
+write_to_excel(President,"President")
+print(President)
 
