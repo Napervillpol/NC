@@ -6,6 +6,13 @@ from lxml import etree
 from zipfile import ZipFile
 from urllib.request import urlopen
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sb
+sb.set()
+pd.options.mode.chained_assignment = None
+
 def write_to_excel(race,race_name):
     writer = pd.ExcelWriter('NC_'+race_name+ '.xlsx', engine='xlsxwriter')
 
@@ -163,4 +170,120 @@ write_to_excel(Senate,"Senate")
 Governor =assign_race(Cooper,Forest,"Cooper","Forest")
 calculate_shift(Governor,President)
 write_to_excel(Governor,"Governor")
+
+
+#Plots
+
+#Mail
+plt.figure(1)
+plt.title('Governor (Mail)')
+plt.scatter(President.mail['Biden Pct'],Governor.mail['Cooper Pct'],Governor.mail['Total']/1000)
+
+x = President.mail['Biden Pct'].reset_index()
+y = Governor.mail['Cooper Pct'].dropna().reset_index()
+
+
+Gov_graph =x.merge(y,on="index")
+Gov_graph=Gov_graph.drop(columns=['index'])
+
+x = Gov_graph['Biden Pct']
+y = Gov_graph['Cooper Pct']
+
+b, a = np.polyfit(x, y, deg=1)
+
+xseq = np.linspace(0, 1,5)
+
+plt.plot(xseq, a + b * xseq, color="k", lw=2.5);
+
+x = np.linspace(0,1,5)
+y = x
+plt.plot(x, y, '-r', label='y=x+1')
+plt.grid()
+print(a)
+plt.show()
+
+
+
+#One Stop
+plt.figure(2)
+plt.title('Governor (One Stop)')
+plt.scatter(President.advance['Biden Pct'],Governor.advance['Cooper Pct'],Governor.advance['Total']/1000)
+
+x = President.advance['Biden Pct'].reset_index()
+y = Governor.advance['Cooper Pct'].dropna().reset_index()
+
+Gov_graph =x.merge(y,on="index")
+Gov_graph=Gov_graph.drop(columns=['index'])
+
+x = Gov_graph['Biden Pct']
+y = Gov_graph['Cooper Pct']
+
+b, a = np.polyfit(x, y, deg=1)
+
+xseq = np.linspace(0, 1,5)
+
+plt.plot(xseq, a + b * xseq, color="k", lw=2.5);
+
+x = np.linspace(0,1,5)
+y = x
+plt.plot(x, y, '-r', label='y=x+1')
+plt.grid()
+print(a)
+plt.show()
+
+#Election Day
+plt.figure(3)
+plt.title('Governor (Election Day)')
+plt.scatter(President.eday['Biden Pct'],Governor.eday['Cooper Pct'],Governor.eday['Total']/1000)
+
+x = President.eday['Biden Pct'].reset_index()
+y = Governor.eday['Cooper Pct'].dropna().reset_index()
+
+Gov_graph =x.merge(y,on="index")
+Gov_graph=Gov_graph.drop(columns=['index'])
+
+x = Gov_graph['Biden Pct']
+y = Gov_graph['Cooper Pct']
+
+b, a = np.polyfit(x, y, deg=1)
+
+xseq = np.linspace(0, 1,5)
+
+plt.plot(xseq, a + b * xseq, color="k", lw=2.5);
+
+x = np.linspace(0,1,5)
+y = x
+plt.plot(x, y, '-r', label='y=x+1')
+plt.grid()
+print(a)
+plt.show()
+
+
+
+#Total
+plt.figure(4)
+plt.title('Governor (Total)')
+plt.scatter(President.total['Biden Pct'],Governor.total['Cooper Pct'],Governor.total['Total']/1000)
+
+x = President.total['Biden Pct'].reset_index()
+y = Governor.total['Cooper Pct'].dropna().reset_index()
+
+Gov_graph =x.merge(y,on="index")
+Gov_graph=Gov_graph.drop(columns=['index'])
+
+x = Gov_graph['Biden Pct']
+y = Gov_graph['Cooper Pct']
+
+b, a = np.polyfit(x, y, deg=1)
+
+xseq = np.linspace(0, 1,5)
+
+plt.plot(xseq, a + b * xseq, color="k", lw=2.5);
+
+x = np.linspace(0,1,5)
+y = x
+plt.plot(x, y, '-r', label='y=x+1')
+plt.grid()
+print(a)
+plt.show()
 
