@@ -9,8 +9,7 @@ from urllib.request import urlopen
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sb
-sb.set()
+import statsmodels.api as sm
 pd.options.mode.chained_assignment = None
 
 def write_to_excel(race,race_name):
@@ -175,6 +174,9 @@ write_to_excel(Governor,"Governor")
 #Plots
 
 #Mail
+
+plt.xlabel("Biden Pct")
+plt.ylabel("Cooper Pct")
 plt.figure(1)
 plt.title('Governor (Mail)')
 plt.scatter(President.mail['Biden Pct'],Governor.mail['Cooper Pct'],Governor.mail['Total']/1000)
@@ -189,17 +191,22 @@ Gov_graph=Gov_graph.drop(columns=['index'])
 x = Gov_graph['Biden Pct']
 y = Gov_graph['Cooper Pct']
 
-b, a = np.polyfit(x, y, deg=1)
 
-xseq = np.linspace(0, 1,5)
+x2 = sm.add_constant(x)
+wls_model = sm.WLS(y,x2, weights=President.mail['Total'])
+results = wls_model.fit()
 
-plt.plot(xseq, a + b * xseq, color="k", lw=2.5);
+print(results.summary())
+
+plt.plot(x,results.fittedvalues)
 
 x = np.linspace(0,1,5)
 y = x
-plt.plot(x, y, '-r', label='y=x+1')
+
 plt.grid()
-print(a)
+plt.plot(x, y, '-r', label='y=x+1')
+
+
 plt.show()
 
 
@@ -218,17 +225,17 @@ Gov_graph=Gov_graph.drop(columns=['index'])
 x = Gov_graph['Biden Pct']
 y = Gov_graph['Cooper Pct']
 
-b, a = np.polyfit(x, y, deg=1)
-
-xseq = np.linspace(0, 1,5)
-
-plt.plot(xseq, a + b * xseq, color="k", lw=2.5);
+x2 = sm.add_constant(x)
+wls_model = sm.WLS(y,x2, weights=President.advance['Total'])
+results = wls_model.fit()
+print(results.summary())
+plt.plot(x,results.fittedvalues)
 
 x = np.linspace(0,1,5)
 y = x
 plt.plot(x, y, '-r', label='y=x+1')
 plt.grid()
-print(a)
+
 plt.show()
 
 #Election Day
@@ -245,20 +252,18 @@ Gov_graph=Gov_graph.drop(columns=['index'])
 x = Gov_graph['Biden Pct']
 y = Gov_graph['Cooper Pct']
 
-b, a = np.polyfit(x, y, deg=1)
-
-xseq = np.linspace(0, 1,5)
-
-plt.plot(xseq, a + b * xseq, color="k", lw=2.5);
+x2 = sm.add_constant(x)
+wls_model = sm.WLS(y,x2, weights=President.total['Total'])
+results = wls_model.fit()
+print(results.summary())
+plt.plot(x,results.fittedvalues)
 
 x = np.linspace(0,1,5)
 y = x
 plt.plot(x, y, '-r', label='y=x+1')
+
 plt.grid()
-print(a)
 plt.show()
-
-
 
 #Total
 plt.figure(4)
@@ -274,16 +279,16 @@ Gov_graph=Gov_graph.drop(columns=['index'])
 x = Gov_graph['Biden Pct']
 y = Gov_graph['Cooper Pct']
 
-b, a = np.polyfit(x, y, deg=1)
-
-xseq = np.linspace(0, 1,5)
-
-plt.plot(xseq, a + b * xseq, color="k", lw=2.5);
+x2 = sm.add_constant(x)
+wls_model = sm.WLS(y,x2, weights=President.total['Total'])
+results = wls_model.fit()
+print(results.summary())
+plt.plot(x,results.fittedvalues)
 
 x = np.linspace(0,1,5)
 y = x
 plt.plot(x, y, '-r', label='y=x+1')
 plt.grid()
-print(a)
+
 plt.show()
 
