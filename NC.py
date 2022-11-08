@@ -126,6 +126,46 @@ def calculate_shift(df_2022,df_2020):
      df_2022.total.insert(9, "Turnout",df_2022.total["Total"]/df_2020.total["Total"])
 
 
+def Statmodels(President,Current_race,Current_name,Title,w):
+    
+    plt.title(Title)
+    plt.xlabel("Biden Pct")
+    plt.ylabel(Current_name)
+    plt.scatter(President['Biden Pct'],Current_race[Current_name],w)
+
+    x = President['Biden Pct'].reset_index()
+    y = Current_race[Current_name].dropna().reset_index()
+
+
+    Current_graph =x.merge(y,on="index")
+    Current_graph=Current_graph.drop(columns=['index'])
+
+    x = Current_graph['Biden Pct']
+    y = Current_graph[Current_name]
+
+
+    x2 = sm.add_constant(x)
+    wls_model = sm.WLS(y,x2, weights=President['Total'])
+    results = wls_model.fit()
+    
+    
+    plt.plot(x,results.fittedvalues)
+    
+    xpoint = pd.DataFrame(x, columns=['Biden Pct'])
+    ypoint = pd.DataFrame(results.fittedvalues, columns=['expected'])
+    newline = pd.merge(xpoint, ypoint, left_index=True, right_index=True)
+    newline =newline.sort_values(by=['expected']).reset_index(drop=True)
+
+    swing = (newline.iloc[0][1] - newline.iloc[0][0] + newline.iloc[-1][1] - newline.iloc[-1][0])
+    print("{} swing: {:.1%}".format(Title,swing))
+    x = np.linspace(0,1,5)
+    y = x
+
+    plt.grid()
+    plt.plot(x, y, '-r', label='y=x+1')
+
+    plt.show()
+
 url = 'https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2020_11_03/results_pct_20201103.zip'
 
 r = requests.get(url)
@@ -170,125 +210,15 @@ Governor =assign_race(Cooper,Forest,"Cooper","Forest")
 calculate_shift(Governor,President)
 write_to_excel(Governor,"Governor")
 
+"""""
+Statmodels(President.mail,Senate.mail,"Cal Pct","Mail",Senate.mail['Total']/1000)
+Statmodels(President.advance,Senate.advance,"Cal Pct","One Stop",Senate.advance['Total']/1000)
+Statmodels(President.eday,Senate.eday,"Cal Pct","Election day",Senate.eday['Total']/1000)
+Statmodels(President.total,Senate.total,"Cal Pct","Total",Senate.total['Total']/1000)
 
-#Plots
-
-#Mail
-
-plt.xlabel("Biden Pct")
-plt.ylabel("Cooper Pct")
-plt.figure(1)
-plt.title('Governor (Mail)')
-plt.scatter(President.mail['Biden Pct'],Governor.mail['Cooper Pct'],Governor.mail['Total']/1000)
-
-x = President.mail['Biden Pct'].reset_index()
-y = Governor.mail['Cooper Pct'].dropna().reset_index()
-
-
-Gov_graph =x.merge(y,on="index")
-Gov_graph=Gov_graph.drop(columns=['index'])
-
-x = Gov_graph['Biden Pct']
-y = Gov_graph['Cooper Pct']
-
-
-x2 = sm.add_constant(x)
-wls_model = sm.WLS(y,x2, weights=President.mail['Total'])
-results = wls_model.fit()
-
-print(results.summary())
-
-plt.plot(x,results.fittedvalues)
-
-x = np.linspace(0,1,5)
-y = x
-
-plt.grid()
-plt.plot(x, y, '-r', label='y=x+1')
-
-
-plt.show()
-
-
-
-#One Stop
-plt.figure(2)
-plt.title('Governor (One Stop)')
-plt.scatter(President.advance['Biden Pct'],Governor.advance['Cooper Pct'],Governor.advance['Total']/1000)
-
-x = President.advance['Biden Pct'].reset_index()
-y = Governor.advance['Cooper Pct'].dropna().reset_index()
-
-Gov_graph =x.merge(y,on="index")
-Gov_graph=Gov_graph.drop(columns=['index'])
-
-x = Gov_graph['Biden Pct']
-y = Gov_graph['Cooper Pct']
-
-x2 = sm.add_constant(x)
-wls_model = sm.WLS(y,x2, weights=President.advance['Total'])
-results = wls_model.fit()
-print(results.summary())
-plt.plot(x,results.fittedvalues)
-
-x = np.linspace(0,1,5)
-y = x
-plt.plot(x, y, '-r', label='y=x+1')
-plt.grid()
-
-plt.show()
-
-#Election Day
-plt.figure(3)
-plt.title('Governor (Election Day)')
-plt.scatter(President.eday['Biden Pct'],Governor.eday['Cooper Pct'],Governor.eday['Total']/1000)
-
-x = President.eday['Biden Pct'].reset_index()
-y = Governor.eday['Cooper Pct'].dropna().reset_index()
-
-Gov_graph =x.merge(y,on="index")
-Gov_graph=Gov_graph.drop(columns=['index'])
-
-x = Gov_graph['Biden Pct']
-y = Gov_graph['Cooper Pct']
-
-x2 = sm.add_constant(x)
-wls_model = sm.WLS(y,x2, weights=President.total['Total'])
-results = wls_model.fit()
-print(results.summary())
-plt.plot(x,results.fittedvalues)
-
-x = np.linspace(0,1,5)
-y = x
-plt.plot(x, y, '-r', label='y=x+1')
-
-plt.grid()
-plt.show()
-
-#Total
-plt.figure(4)
-plt.title('Governor (Total)')
-plt.scatter(President.total['Biden Pct'],Governor.total['Cooper Pct'],Governor.total['Total']/1000)
-
-x = President.total['Biden Pct'].reset_index()
-y = Governor.total['Cooper Pct'].dropna().reset_index()
-
-Gov_graph =x.merge(y,on="index")
-Gov_graph=Gov_graph.drop(columns=['index'])
-
-x = Gov_graph['Biden Pct']
-y = Gov_graph['Cooper Pct']
-
-x2 = sm.add_constant(x)
-wls_model = sm.WLS(y,x2, weights=President.total['Total'])
-results = wls_model.fit()
-print(results.summary())
-plt.plot(x,results.fittedvalues)
-
-x = np.linspace(0,1,5)
-y = x
-plt.plot(x, y, '-r', label='y=x+1')
-plt.grid()
-
-plt.show()
+"""
+Statmodels(President.mail,Governor.mail,"Cooper Pct","Mail",Governor.mail['Total']/1000)
+Statmodels(President.advance,Governor.advance,"Cooper Pct","One Stop",Governor.advance['Total']/1000)
+Statmodels(President.eday,Governor.eday,"Cooper Pct","Election day",Governor.eday['Total']/1000)
+Statmodels(President.total,Governor.total,"Cooper Pct","Total",Governor.total['Total']/1000)
 
